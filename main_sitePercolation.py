@@ -151,7 +151,7 @@ def main_sitePercolation_unionFind():
         seed(mySeed)
         print "# bondFile = %s"%(bondFile)
         print "# seed = %d"%(mySeed)
-        print "# (nSites) (G.v) (G.e) (nComp) (cMax)"
+        print "# (nSites) (G.v) (nComp) (cMax)"
         G   = fetchGraph(bondFile)
         uf  = UnionFind_byRank_pathCompression()
         occ = [0 for i in range(G.v)]
