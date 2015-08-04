@@ -1,4 +1,4 @@
-""" main_sitePercolation.py
+""" main_bondPercolation.py
 
 Contains function defintions for union find based percolation algorithm. 
 Albeit the implementation is slightly different, it is based on the idea
@@ -22,7 +22,7 @@ class Graph(object):
         pass
 
 
-def shuffleSites(myList):
+def shuffleEdges(myList):
         """iterator over shuffled list elements"""
         shuffle(myList)
         ctr = 0
@@ -34,10 +34,10 @@ def shuffleSites(myList):
 
 # READ CFG 1{{{
 
-def fetchGraph_adjList(fName):
+def fetchGraph_eList(fName):
         """construct adjacengy list graph from edge list in DIMACS formatted file"""
         G     = Graph()
-        adjList = dict()
+        eList = []
         myOpen = gzip.open if fName.split(".")[-1]=="gz" else open
         with myOpen(fName,'r') as f:
             for line in f:
@@ -50,15 +50,9 @@ def fetchGraph_adjList(fName):
                 elif c[0]=='e':
                         vi = int(c[1])
                         vj = int(c[2])
+                        eList.append((vi,vj))
 
-                        if vi not in adjList: adjList[vi]=[]
-                        adjList[vi].append(vj)
-
-                        if eType==0:
-                            if vj not in adjList: adjList[vj]=[]
-                            adjList[vj].append(vi)
-
-        G.adjList = adjList
+        G.eList = eList
         return G
 # 1}}}
 
@@ -117,7 +111,7 @@ class UnionFind_byRank_pathCompression(object):
 # 1}}}
 
 
-def main_sitePercolation_unionFind():
+def main_bondPercolation_unionFind():
 
         bondFile = sys.argv[1]
         mySeed   = int(sys.argv[2])
@@ -126,15 +120,13 @@ def main_sitePercolation_unionFind():
         print "# bondFile = %s"%(bondFile)
         print "# seed = %d"%(mySeed)
         print "# (nSites) (G.v) (G.e) (nComp) (cMax)"
-        G   = fetchGraph_adjList(bondFile)
+        G   = fetchGraph_eList(bondFile)
         uf  = UnionFind_byRank_pathCompression()
-        occ = [0 for i in range(G.v)]
-        for nSites,i in shuffleSites(range(G.v)):
-            uf.newElement(i); occ[i] = 1
-            for j in G.adjList[i]:
-                if occ[j]: uf.union(i,j)
-            print "%4d %4d %4d %4d %4d"%(nSites, G.v, G.e, uf.nComp, uf.cMax)
+        for i in range(G.v): uf.newElement(i)
+        for nEdges,(i,j) in shuffleEdges(G.eList):
+            uf.union(i,j)
+            print "%4d %4d %4d %4d %4d"%(nEdges, G.v, G.e, uf.nComp, uf.cMax)
 
 
-main_sitePercolation_unionFind()
-# EOF: main_sitePercolation.py
+main_bondPercolation_unionFind()
+# EOF: main_bondPercolation.py
