@@ -1,46 +1,20 @@
 import sys
 import itertools
 
-
 def KnnBasedChimeraGraph_eList(n,Lx,Ly):
-
-        def V_K_nn(ctr,n):
-                """ordered pairs of K_nn vertices
-                
-                ctr -- id of the first vertex in current K_nn
-                n   -- size of K_nn
-                """
-                return zip(range(ctr,ctr+n),
-                        range(ctr+n,ctr+2*n))
-
-        def E_K_nn(ctr,n):
-                """edge set of K_nn
-                
-                ctr -- id of the first vertex in current K_nn
-                n   -- size of K_nn
-                """
-                return list(itertools.product(range(ctr,ctr+n),
-                        range(ctr+n,ctr+2*n)))
-
-        # arrange ordered pairs of K_nn subgraphs in Lx x Ly grid
-        V = { (x,y): V_K_nn(2*n*(x+y*Ly),n) 
-               for x,y in itertools.product(range(Lx),range(Ly)) }
-
-        # accumulate edges
-        innerEdges = []
-        interEdges = []
+        E = []
         for x,y in itertools.product(range(Lx),range(Ly)):
+             i0 = 2*n*(x+y*Lx)
              # inner edges of current K_nn
-             innerEdges += E_K_nn(2*n*(x+y*Ly),n)
+             E += list(itertools.product(range(i0,i0+n),range(i0+n,i0+2*n)))
              # interconnecting K_nn (K prime)_nn edges
              for ni in range(n):
                 if x < Lx-1:
-                        interEdges.append((V[(x,y)][ni][1],V[(x+1,y)][ni][1]))
+                        E.append((i0+n+ni,i0+2*n+n+ni))
                 if y < Ly-1:
-                        interEdges.append((V[(x,y)][ni][0],V[(x,y+1)][ni][0]))
-
+                        E.append((i0+ni,i0+2*n*Lx+ni))
         # full edge set of K_nn based lattice graph
-        return innerEdges + interEdges
+        return E 
 
 
 def main():
